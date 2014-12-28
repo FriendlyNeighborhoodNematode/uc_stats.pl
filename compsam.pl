@@ -42,6 +42,7 @@ my $samfilename;
 my $outfilename;
 my $num_uniq;
 my $uniq_genes;
+my $coverage;
 
 GetOptions(
 	"uc=s"		=> \$ucfilename,
@@ -49,6 +50,7 @@ GetOptions(
 	"out=s"		=> \$outfilename,
 	"num_uniq"	=> \$num_uniq,
 	"uniq_genes"	=> \$uniq_genes,
+	"coverage"	=> \$coverage,
 );
 
 
@@ -80,16 +82,18 @@ foreach my $cluster (sort {$a <=> $b} keys(%ucfilehash)){
 
 
 my @genes;
+my $uniq_count;
 
 if (defined $outfilename){
 	open STDOUT, ">$outfilename" or die $!;
 }
 
 foreach my $cluster (sort {$a <=> $b} keys(%resulthash)){
+	undef @genes;
 	print "c", $cluster;
 	foreach my $mappedread (keys $resulthash{$cluster}){
 		foreach my $gene ($resulthash{$cluster}{$mappedread}){
-			if ($num_uniq || $uniq_genes){
+			if ($num_uniq || $uniq_genes || $coverage){
 				push(@genes, $resulthash{$cluster}{$mappedread});
 			}
 			else {
@@ -104,6 +108,20 @@ foreach my $cluster (sort {$a <=> $b} keys(%resulthash)){
 	elsif ($num_uniq){
 		my $numuniq = uniq(@genes);
 		printf "\t%d", $numuniq;
+		print "\n";
+	}
+	elsif ($coverage){
+		my @uniq = uniq(@genes);
+		for my $uniq (@uniq){
+			$uniq_count = 0;
+			for my $gene (@genes){
+				next if $gene =~ /\*/;
+				if ($uniq =~ /$gene/){
+					$uniq_count++;
+				}
+			}
+		printf "\t%d", $uniq_count;
+		}
 		print "\n";
 	}
 	else {print "\n"};
