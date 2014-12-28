@@ -1,4 +1,4 @@
-uc_stats.pl
+uclustory
 ===========
 
-A perl script for parsing and rearranging UCLUST output
+Some (hopefully) useful scripts for parsing and rearranging UCLUST output
